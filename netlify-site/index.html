@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Visualization Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #090909;
+            --bg-card: #141414;
+            --text-main: #ffffff;
+            --text-muted: #b3b3b3;
+            --accent-red: #e50914;
+            --accent-hover: #f40612;
+            --border-color: #333333;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'DM Sans', sans-serif;
+            line-height: 1.6;
+        }
+        
+        h1, h2, h3, h4, h5, h6, .brand {
+            font-family: 'Manrope', sans-serif;
+        }
+        
+        /* Navbar */
+        nav {
+            position: sticky;
+            top: 0;
+            background-color: rgba(9, 9, 9, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+        }
+        
+        .brand {
+            color: var(--accent-red);
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 30px;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(to right, rgba(229, 9, 20, 0.2), transparent);
+            padding: 40px 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(229, 9, 20, 0.3);
+        }
+        
+        .hero h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .hero p {
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+        
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .filter-group label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        
+        .filter-group select {
+            background-color: #222;
+            color: white;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 4px;
+            font-family: inherit;
+            outline: none;
+            cursor: pointer;
+        }
+        
+        .filter-group select:focus {
+            border-color: var(--accent-red);
+        }
+        
+        /* Metric Cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-red);
+        }
+        
+        .metric-title {
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-top: 10px;
+            font-family: 'Manrope', sans-serif;
+        }
+        
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 992px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .chart-container {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            min-height: 350px;
+        }
+        
+        .chart-container h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: var(--text-main);
+            text-align: center;
+        }
+        
+        /* Insights */
+        .insights-section {
+            margin-bottom: 30px;
+        }
+        .insights-section h2 { margin-bottom: 20px; }
+        
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .insight-card {
+            background: linear-gradient(135deg, #2a0808 0%, var(--bg-card) 100%);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .insight-card h4 { color: var(--text-muted); font-size: 14px; margin-bottom: 10px; }
+        .insight-card .val { font-size: 24px; font-weight: bold; color: var(--accent-red); }
+        
+        /* Data Table */
+        .table-section {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+        
+        .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        
+        .search-box {
+            padding: 8px 15px;
+            background: #222;
+            border: 1px solid var(--border-color);
+            color: white;
+            border-radius: 4px;
+            width: 250px;
+        }
+        
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid var(--border-color); }
+        th { background: rgba(255,255,255,0.05); font-weight: 600; color: var(--text-muted); }
+        tr:hover { background: rgba(255,255,255,0.02); }
+        
+        .pagination { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
+        .pagination button {
+            background: #222; color: white; border: 1px solid var(--border-color); padding: 5px 12px; cursor: pointer; border-radius: 4px;
+        }
+        .pagination button:hover { background: var(--accent-red); border-color: var(--accent-red); }
+        .pagination span { align-self: center; font-size: 14px; }
+        
+        footer { text-align: center; padding: 20px; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 14px; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="brand">Data Visualization Hub</div>
+    </nav>
+    
+    <div class="container">
+        <div class="hero">
+            <h1>Data Visualization Hub</h1>
+            <p id="hero-stats">Loading dashboard data...</p>
+        </div>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <label>Type</label>
+                <select id="filter-type"><option value="All">All Types</option></select>
+            </div>
+            <div class="filter-group">
+                <label>Region</label>
+                <select id="filter-region"><option value="All">All Regions</option></select>
+            </div>
+            <div class="filter-group">
+                <label>Rating</label>
+                <select id="filter-rating"><option value="All">All Ratings</option></select>
+            </div>
+            <div class="filter-group">
+                <label>Category</label>
+                <select id="filter-category"><option value="All">All Categories</option></select>
+            </div>
+        </div>
+        
+        <div class="metrics-grid">
+            <div class="metric-card"><div class="metric-title">Total Titles</div><div class="metric-value" id="m-titles">0</div></div>
+            <div class="metric-card"><div class="metric-title">Movies</div><div class="metric-value" id="m-movies">0</div></div>
+            <div class="metric-card"><div class="metric-title">TV Shows</div><div class="metric-value" id="m-shows">0</div></div>
+            <div class="metric-card"><div class="metric-title">Regions</div><div class="metric-value" id="m-regions">0</div></div>
+            <div class="metric-card"><div class="metric-title">Customers</div><div class="metric-value" id="m-customers">0</div></div>
+            <div class="metric-card"><div class="metric-title">Categories</div><div class="metric-value" id="m-categories">0</div></div>
+        </div>
+        
+        <div class="charts-grid">
+            <div class="chart-container"><h3>Movies vs TV Shows</h3><div id="chart1"></div></div>
+            <div class="chart-container"><h3>Viewing Activity by Month</h3><div id="chart2"></div></div>
+            <div class="chart-container"><h3>Top Regions</h3><div id="chart3"></div></div>
+            <div class="chart-container"><h3>Content Rating Distribution</h3><div id="chart4"></div></div>
+            <div class="chart-container"><h3>Popular Categories</h3><div id="chart5"></div></div>
+            <div class="chart-container"><h3>Movie vs TV Activity by Month</h3><div id="chart6"></div></div>
+            <div class="chart-container"><h3>Revenue by Region</h3><div id="chart7"></div></div>
+            <div class="chart-container"><h3>Average Rating by Subscription Plan</h3><div id="chart8"></div></div>
+        </div>
+        
+        <div class="insights-section">
+            <h2>Key Insights</h2>
+            <div class="insights-grid">
+                <div class="insight-card"><h4>Most Common Format</h4><div class="val" id="i-format">-</div></div>
+                <div class="insight-card"><h4>Busiest Watch Month</h4><div class="val" id="i-month">-</div></div>
+                <div class="insight-card"><h4>Top Region</h4><div class="val" id="i-region">-</div></div>
+                <div class="insight-card"><h4>Most Common Rating</h4><div class="val" id="i-rating">-</div></div>
+                <div class="insight-card"><h4>Popular Category</h4><div class="val" id="i-category">-</div></div>
+            </div>
+        </div>
+        
+        <div class="table-section">
+            <div class="table-header">
+                <h2>Data Explorer</h2>
+                <input type="text" class="search-box" id="table-search" placeholder="Search titles, customers...">
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Category</th>
+                        <th>Region</th>
+                        <th>Date</th>
+                        <th>Revenue</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body"></tbody>
+            </table>
+            <div class="pagination">
+                <button id="btn-prev">Previous</button>
+                <span id="page-info">Page 1 of 1</span>
+                <button id="btn-next">Next</button>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        &copy; 2026 Data Visualization Hub. Built with Plotly.js.
+    </footer>
+
+    <script>
+        const rawData = [{"Customer_ID": "CUST0001", "Customer_Name": "Amit Das", "Region": "South", "Subscription_Plan": "Standard", "Movie_ID": "MOV1001", "Title": "Damsel", "Category": "Fantasy", "Type": "Movie", "Rating": 1, "Watch_Count": 9, "Watch_Date": "2026-03-27", "Watch_Time_Minutes": 159, "Language": "Japanese", "Device": "Laptop", "Payment_Method": "UPI", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0002", "Customer_Name": "Pooja Sharma", "Region": "East", "Subscription_Plan": "Premium", "Movie_ID": "MOV1002", "Title": "Squid Game", "Category": "Thriller", "Type": "TV Show", "Rating": 1, "Watch_Count": 23, "Watch_Date": "2026-04-30", "Watch_Time_Minutes": 142, "Language": "Korean", "Device": "TV", "Payment_Method": "PayPal", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0003", "Customer_Name": "Arjun Patil", "Region": "South", "Subscription_Plan": "Premium", "Movie_ID": "MOV1003", "Title": "The Gray Man", "Category": "Action", "Type": "Movie", "Rating": 5, "Watch_Count": 18, "Watch_Date": "2026-04-24", "Watch_Time_Minutes": 36, "Language": "Korean", "Device": "Mobile", "Payment_Method": "PayPal", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0004", "Customer_Name": "Rohan Sharma", "Region": "North", "Subscription_Plan": "Premium", "Movie_ID": "MOV1004", "Title": "Damsel", "Category": "Fantasy", "Type": "Movie", "Rating": 5, "Watch_Count": 11, "Watch_Date": "2026-06-19", "Watch_Time_Minutes": 176, "Language": "English", "Device": "Laptop", "Payment_Method": "PayPal", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0005", "Customer_Name": "Rohan Patil", "Region": "North", "Subscription_Plan": "Basic", "Movie_ID": "MOV1005", "Title": "Damsel", "Category": "Fantasy", "Type": "Movie", "Rating": 3, "Watch_Count": 4, "Watch_Date": "2026-02-04", "Watch_Time_Minutes": 118, "Language": "Spanish", "Device": "TV", "Payment_Method": "Card", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0006", "Customer_Name": "Ritika Gupta", "Region": "West", "Subscription_Plan": "Standard", "Movie_ID": "MOV1006", "Title": "Extraction", "Category": "Action", "Type": "Movie", "Rating": 5, "Watch_Count": 20, "Watch_Date": "2026-05-14", "Watch_Time_Minutes": 53, "Language": "Spanish", "Device": "Mobile", "Payment_Method": "Net Banking", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0007", "Customer_Name": "Nikhil Patil", "Region": "North", "Subscription_Plan": "Basic", "Movie_ID": "MOV1007", "Title": "Leo", "Category": "Animation", "Type": "Movie", "Rating": 2, "Watch_Count": 24, "Watch_Date": "2026-01-23", "Watch_Time_Minutes": 93, "Language": "English", "Device": "Mobile", "Payment_Method": "Card", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0008", "Customer_Name": "Meera Patil", "Region": "East", "Subscription_Plan": "Premium", "Movie_ID": "MOV1008", "Title": "The Gray Man", "Category": "Action", "Type": "Movie", "Rating": 2, "Watch_Count": 2, "Watch_Date": "2026-06-24", "Watch_Time_Minutes": 45, "Language": "Hindi", "Device": "Mobile", "Payment_Method": "PayPal", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0009", "Customer_Name": "Priya Das", "Region": "North", "Subscription_Plan": "Premium", "Movie_ID": "MOV1009", "Title": "Damsel", "Category": "Fantasy", "Type": "Movie", "Rating": 3, "Watch_Count": 20, "Watch_Date": "2026-04-25", "Watch_Time_Minutes": 86, "Language": "English", "Device": "TV", "Payment_Method": "Net Banking", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0010", "Customer_Name": "Ritika Joshi", "Region": "East", "Subscription_Plan": "Standard", "Movie_ID": "MOV1010", "Title": "Leo", "Category": "Animation", "Type": "Movie", "Rating": 3, "Watch_Count": 7, "Watch_Date": "2026-06-09", "Watch_Time_Minutes": 109, "Language": "English", "Device": "Tablet", "Payment_Method": "UPI", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0011", "Customer_Name": "Vikas Singh", "Region": "West", "Subscription_Plan": "Premium", "Movie_ID": "MOV1011", "Title": "Squid Game", "Category": "Thriller", "Type": "TV Show", "Rating": 4, "Watch_Count": 24, "Watch_Date": "2026-05-18", "Watch_Time_Minutes": 131, "Language": "Hindi", "Device": "TV", "Payment_Method": "PayPal", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0012", "Customer_Name": "Sahil Sharma", "Region": "East", "Subscription_Plan": "Premium", "Movie_ID": "MOV1012", "Title": "Stranger Things", "Category": "Sci-Fi", "Type": "TV Show", "Rating": 3, "Watch_Count": 14, "Watch_Date": "2026-06-03", "Watch_Time_Minutes": 161, "Language": "Hindi", "Device": "TV", "Payment_Method": "Net Banking", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0013", "Customer_Name": "Ritika Das", "Region": "West", "Subscription_Plan": "Basic", "Movie_ID": "MOV1013", "Title": "The Gray Man", "Category": "Action", "Type": "Movie", "Rating": 3, "Watch_Count": 21, "Watch_Date": "2026-02-18", "Watch_Time_Minutes": 80, "Language": "Japanese", "Device": "TV", "Payment_Method": "Net Banking", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0014", "Customer_Name": "Meera Sharma", "Region": "North", "Subscription_Plan": "Standard", "Movie_ID": "MOV1014", "Title": "Money Heist", "Category": "Crime", "Type": "TV Show", "Rating": 3, "Watch_Count": 21, "Watch_Date": "2026-04-11", "Watch_Time_Minutes": 99, "Language": "Korean", "Device": "Mobile", "Payment_Method": "Net Banking", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0015", "Customer_Name": "Priya Kulkarni", "Region": "West", "Subscription_Plan": "Premium", "Movie_ID": "MOV1015", "Title": "Our Planet", "Category": "Documentary", "Type": "TV Show", "Rating": 5, "Watch_Count": 5, "Watch_Date": "2026-01-08", "Watch_Time_Minutes": 118, "Language": "Japanese", "Device": "Laptop", "Payment_Method": "Card", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0016", "Customer_Name": "Sneha Shah", "Region": "West", "Subscription_Plan": "Standard", "Movie_ID": "MOV1016", "Title": "Extraction", "Category": "Action", "Type": "Movie", "Rating": 2, "Watch_Count": 12, "Watch_Date": "2026-06-12", "Watch_Time_Minutes": 92, "Language": "Spanish", "Device": "Mobile", "Payment_Method": "Net Banking", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0017", "Customer_Name": "Meera Jadhav", "Region": "South", "Subscription_Plan": "Premium", "Movie_ID": "MOV1017", "Title": "The Witcher", "Category": "Fantasy", "Type": "TV Show", "Rating": 4, "Watch_Count": 12, "Watch_Date": "2026-04-05", "Watch_Time_Minutes": 165, "Language": "Hindi", "Device": "Laptop", "Payment_Method": "Card", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0018", "Customer_Name": "Arjun Sharma", "Region": "East", "Subscription_Plan": "Basic", "Movie_ID": "MOV1018", "Title": "Wednesday", "Category": "Mystery", "Type": "TV Show", "Rating": 5, "Watch_Count": 11, "Watch_Date": "2026-04-03", "Watch_Time_Minutes": 30, "Language": "English", "Device": "Laptop", "Payment_Method": "Card", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0019", "Customer_Name": "Rahul Das", "Region": "South", "Subscription_Plan": "Basic", "Movie_ID": "MOV1019", "Title": "The Gray Man", "Category": "Action", "Type": "Movie", "Rating": 2, "Watch_Count": 3, "Watch_Date": "2026-06-27", "Watch_Time_Minutes": 157, "Language": "Japanese", "Device": "Laptop", "Payment_Method": "PayPal", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0020", "Customer_Name": "Arjun Gupta", "Region": "West", "Subscription_Plan": "Premium", "Movie_ID": "MOV1020", "Title": "The Gray Man", "Category": "Action", "Type": "Movie", "Rating": 1, "Watch_Count": 6, "Watch_Date": "2026-02-23", "Watch_Time_Minutes": 77, "Language": "Korean", "Device": "Tablet", "Payment_Method": "Net Banking", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0021", "Customer_Name": "Rohan Verma", "Region": "South", "Subscription_Plan": "Premium", "Movie_ID": "MOV1021", "Title": "Wednesday", "Category": "Mystery", "Type": "TV Show", "Rating": 2, "Watch_Count": 15, "Watch_Date": "2026-06-10", "Watch_Time_Minutes": 41, "Language": "Hindi", "Device": "Tablet", "Payment_Method": "Card", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0022", "Customer_Name": "Karan Patil", "Region": "West", "Subscription_Plan": "Standard", "Movie_ID": "MOV1022", "Title": "The Gray Man", "Category": "Action", "Type": "Movie", "Rating": 5, "Watch_Count": 14, "Watch_Date": "2026-01-23", "Watch_Time_Minutes": 41, "Language": "Korean", "Device": "Laptop", "Payment_Method": "Card", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0023", "Customer_Name": "Meera Kulkarni", "Region": "South", "Subscription_Plan": "Basic", "Movie_ID": "MOV1023", "Title": "Damsel", "Category": "Fantasy", "Type": "Movie", "Rating": 2, "Watch_Count": 20, "Watch_Date": "2026-05-06", "Watch_Time_Minutes": 33, "Language": "Korean", "Device": "Laptop", "Payment_Method": "PayPal", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0024", "Customer_Name": "Arjun Gupta", "Region": "West", "Subscription_Plan": "Basic", "Movie_ID": "MOV1024", "Title": "Squid Game", "Category": "Thriller", "Type": "TV Show", "Rating": 2, "Watch_Count": 11, "Watch_Date": "2026-03-02", "Watch_Time_Minutes": 145, "Language": "English", "Device": "TV", "Payment_Method": "UPI", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0025", "Customer_Name": "Amit Singh", "Region": "East", "Subscription_Plan": "Premium", "Movie_ID": "MOV1025", "Title": "Stranger Things", "Category": "Sci-Fi", "Type": "TV Show", "Rating": 5, "Watch_Count": 7, "Watch_Date": "2026-02-24", "Watch_Time_Minutes": 87, "Language": "Spanish", "Device": "TV", "Payment_Method": "PayPal", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0026", "Customer_Name": "Vikas Das", "Region": "West", "Subscription_Plan": "Standard", "Movie_ID": "MOV1026", "Title": "Money Heist", "Category": "Crime", "Type": "TV Show", "Rating": 4, "Watch_Count": 14, "Watch_Date": "2026-01-02", "Watch_Time_Minutes": 66, "Language": "English", "Device": "TV", "Payment_Method": "PayPal", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0027", "Customer_Name": "Sneha Sharma", "Region": "South", "Subscription_Plan": "Premium", "Movie_ID": "MOV1027", "Title": "Squid Game", "Category": "Thriller", "Type": "TV Show", "Rating": 3, "Watch_Count": 13, "Watch_Date": "2026-04-06", "Watch_Time_Minutes": 144, "Language": "Hindi", "Device": "Laptop", "Payment_Method": "Net Banking", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0028", "Customer_Name": "Vikas Joshi", "Region": "East", "Subscription_Plan": "Basic", "Movie_ID": "MOV1028", "Title": "Extraction", "Category": "Action", "Type": "Movie", "Rating": 1, "Watch_Count": 14, "Watch_Date": "2026-01-27", "Watch_Time_Minutes": 102, "Language": "Korean", "Device": "Mobile", "Payment_Method": "PayPal", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0029", "Customer_Name": "Karan Jadhav", "Region": "West", "Subscription_Plan": "Basic", "Movie_ID": "MOV1029", "Title": "The Gray Man", "Category": "Action", "Type": "Movie", "Rating": 2, "Watch_Count": 21, "Watch_Date": "2026-05-30", "Watch_Time_Minutes": 149, "Language": "English", "Device": "Mobile", "Payment_Method": "PayPal", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0030", "Customer_Name": "Ritika Shah", "Region": "South", "Subscription_Plan": "Standard", "Movie_ID": "MOV1030", "Title": "Wednesday", "Category": "Mystery", "Type": "TV Show", "Rating": 5, "Watch_Count": 6, "Watch_Date": "2026-05-27", "Watch_Time_Minutes": 54, "Language": "Hindi", "Device": "Mobile", "Payment_Method": "Net Banking", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0031", "Customer_Name": "Nikhil Das", "Region": "East", "Subscription_Plan": "Standard", "Movie_ID": "MOV1031", "Title": "The Gray Man", "Category": "Action", "Type": "Movie", "Rating": 5, "Watch_Count": 18, "Watch_Date": "2026-06-09", "Watch_Time_Minutes": 39, "Language": "English", "Device": "Tablet", "Payment_Method": "UPI", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0032", "Customer_Name": "Vikas Shah", "Region": "South", "Subscription_Plan": "Basic", "Movie_ID": "MOV1032", "Title": "Wednesday", "Category": "Mystery", "Type": "TV Show", "Rating": 3, "Watch_Count": 8, "Watch_Date": "2026-04-06", "Watch_Time_Minutes": 90, "Language": "English", "Device": "Laptop", "Payment_Method": "UPI", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0033", "Customer_Name": "Karan Das", "Region": "South", "Subscription_Plan": "Basic", "Movie_ID": "MOV1033", "Title": "Damsel", "Category": "Fantasy", "Type": "Movie", "Rating": 2, "Watch_Count": 6, "Watch_Date": "2026-04-03", "Watch_Time_Minutes": 96, "Language": "Japanese", "Device": "Mobile", "Payment_Method": "Card", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0034", "Customer_Name": "Ritika Shah", "Region": "West", "Subscription_Plan": "Basic", "Movie_ID": "MOV1034", "Title": "Squid Game", "Category": "Thriller", "Type": "TV Show", "Rating": 5, "Watch_Count": 4, "Watch_Date": "2026-06-26", "Watch_Time_Minutes": 173, "Language": "English", "Device": "Laptop", "Payment_Method": "PayPal", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0035", "Customer_Name": "Amit Shah", "Region": "East", "Subscription_Plan": "Basic", "Movie_ID": "MOV1035", "Title": "Leo", "Category": "Animation", "Type": "Movie", "Rating": 5, "Watch_Count": 21, "Watch_Date": "2026-01-08", "Watch_Time_Minutes": 116, "Language": "English", "Device": "Mobile", "Payment_Method": "Net Banking", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0036", "Customer_Name": "Karan Singh", "Region": "South", "Subscription_Plan": "Premium", "Movie_ID": "MOV1036", "Title": "Wednesday", "Category": "Mystery", "Type": "TV Show", "Rating": 5, "Watch_Count": 16, "Watch_Date": "2026-03-01", "Watch_Time_Minutes": 31, "Language": "Spanish", "Device": "TV", "Payment_Method": "UPI", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0037", "Customer_Name": "Meera Verma", "Region": "South", "Subscription_Plan": "Basic", "Movie_ID": "MOV1037", "Title": "Extraction", "Category": "Action", "Type": "Movie", "Rating": 3, "Watch_Count": 12, "Watch_Date": "2026-06-22", "Watch_Time_Minutes": 69, "Language": "Hindi", "Device": "Laptop", "Payment_Method": "Card", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0038", "Customer_Name": "Sahil Das", "Region": "West", "Subscription_Plan": "Standard", "Movie_ID": "MOV1038", "Title": "Damsel", "Category": "Fantasy", "Type": "Movie", "Rating": 4, "Watch_Count": 21, "Watch_Date": "2026-06-19", "Watch_Time_Minutes": 86, "Language": "Hindi", "Device": "Tablet", "Payment_Method": "Card", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0039", "Customer_Name": "Rohan Gupta", "Region": "North", "Subscription_Plan": "Premium", "Movie_ID": "MOV1039", "Title": "The Gray Man", "Category": "Action", "Type": "Movie", "Rating": 2, "Watch_Count": 14, "Watch_Date": "2026-03-06", "Watch_Time_Minutes": 72, "Language": "Hindi", "Device": "Tablet", "Payment_Method": "Net Banking", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0040", "Customer_Name": "Anjali Das", "Region": "South", "Subscription_Plan": "Premium", "Movie_ID": "MOV1040", "Title": "Squid Game", "Category": "Thriller", "Type": "TV Show", "Rating": 2, "Watch_Count": 1, "Watch_Date": "2026-06-20", "Watch_Time_Minutes": 150, "Language": "Spanish", "Device": "Mobile", "Payment_Method": "PayPal", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0041", "Customer_Name": "Ritika Gupta", "Region": "North", "Subscription_Plan": "Basic", "Movie_ID": "MOV1041", "Title": "Extraction", "Category": "Action", "Type": "Movie", "Rating": 1, "Watch_Count": 22, "Watch_Date": "2026-03-17", "Watch_Time_Minutes": 119, "Language": "Hindi", "Device": "Tablet", "Payment_Method": "Card", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0042", "Customer_Name": "Anjali Kulkarni", "Region": "South", "Subscription_Plan": "Standard", "Movie_ID": "MOV1042", "Title": "Extraction", "Category": "Action", "Type": "Movie", "Rating": 5, "Watch_Count": 3, "Watch_Date": "2026-01-25", "Watch_Time_Minutes": 84, "Language": "Hindi", "Device": "Tablet", "Payment_Method": "Net Banking", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0043", "Customer_Name": "Amit Sharma", "Region": "East", "Subscription_Plan": "Premium", "Movie_ID": "MOV1043", "Title": "Our Planet", "Category": "Documentary", "Type": "TV Show", "Rating": 3, "Watch_Count": 21, "Watch_Date": "2026-04-10", "Watch_Time_Minutes": 162, "Language": "Hindi", "Device": "Tablet", "Payment_Method": "UPI", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0044", "Customer_Name": "Vikas Patil", "Region": "North", "Subscription_Plan": "Standard", "Movie_ID": "MOV1044", "Title": "The Gray Man", "Category": "Action", "Type": "Movie", "Rating": 2, "Watch_Count": 25, "Watch_Date": "2026-05-16", "Watch_Time_Minutes": 127, "Language": "Hindi", "Device": "Tablet", "Payment_Method": "Card", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0045", "Customer_Name": "Arjun Verma", "Region": "South", "Subscription_Plan": "Premium", "Movie_ID": "MOV1045", "Title": "Squid Game", "Category": "Thriller", "Type": "TV Show", "Rating": 3, "Watch_Count": 6, "Watch_Date": "2026-03-17", "Watch_Time_Minutes": 68, "Language": "Spanish", "Device": "Mobile", "Payment_Method": "Net Banking", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0046", "Customer_Name": "Sahil Gupta", "Region": "South", "Subscription_Plan": "Basic", "Movie_ID": "MOV1046", "Title": "Wednesday", "Category": "Mystery", "Type": "TV Show", "Rating": 4, "Watch_Count": 15, "Watch_Date": "2026-02-23", "Watch_Time_Minutes": 124, "Language": "English", "Device": "Laptop", "Payment_Method": "Card", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0047", "Customer_Name": "Karan Sharma", "Region": "East", "Subscription_Plan": "Standard", "Movie_ID": "MOV1047", "Title": "Wednesday", "Category": "Mystery", "Type": "TV Show", "Rating": 4, "Watch_Count": 18, "Watch_Date": "2026-02-27", "Watch_Time_Minutes": 59, "Language": "Korean", "Device": "Laptop", "Payment_Method": "UPI", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0048", "Customer_Name": "Anjali Joshi", "Region": "North", "Subscription_Plan": "Basic", "Movie_ID": "MOV1048", "Title": "Damsel", "Category": "Fantasy", "Type": "Movie", "Rating": 4, "Watch_Count": 14, "Watch_Date": "2026-03-12", "Watch_Time_Minutes": 130, "Language": "Spanish", "Device": "Laptop", "Payment_Method": "Net Banking", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0049", "Customer_Name": "Amit Das", "Region": "West", "Subscription_Plan": "Premium", "Movie_ID": "MOV1049", "Title": "The Gray Man", "Category": "Action", "Type": "Movie", "Rating": 2, "Watch_Count": 23, "Watch_Date": "2026-01-22", "Watch_Time_Minutes": 160, "Language": "Hindi", "Device": "Tablet", "Payment_Method": "UPI", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0050", "Customer_Name": "Amit Sharma", "Region": "East", "Subscription_Plan": "Premium", "Movie_ID": "MOV1050", "Title": "Leo", "Category": "Animation", "Type": "Movie", "Rating": 3, "Watch_Count": 6, "Watch_Date": "2026-05-20", "Watch_Time_Minutes": 90, "Language": "English", "Device": "Mobile", "Payment_Method": "UPI", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0051", "Customer_Name": "Karan Das", "Region": "North", "Subscription_Plan": "Basic", "Movie_ID": "MOV1051", "Title": "The Gray Man", "Category": "Action", "Type": "Movie", "Rating": 3, "Watch_Count": 19, "Watch_Date": "2026-04-18", "Watch_Time_Minutes": 32, "Language": "Japanese", "Device": "Laptop", "Payment_Method": "Card", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0052", "Customer_Name": "Rohan Sharma", "Region": "South", "Subscription_Plan": "Standard", "Movie_ID": "MOV1052", "Title": "The Witcher", "Category": "Fantasy", "Type": "TV Show", "Rating": 5, "Watch_Count": 21, "Watch_Date": "2026-04-01", "Watch_Time_Minutes": 35, "Language": "Japanese", "Device": "Laptop", "Payment_Method": "UPI", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0053", "Customer_Name": "Amit Verma", "Region": "East", "Subscription_Plan": "Premium", "Movie_ID": "MOV1053", "Title": "Leo", "Category": "Animation", "Type": "Movie", "Rating": 5, "Watch_Count": 13, "Watch_Date": "2026-05-06", "Watch_Time_Minutes": 120, "Language": "Korean", "Device": "TV", "Payment_Method": "UPI", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0054", "Customer_Name": "Pooja Patil", "Region": "West", "Subscription_Plan": "Basic", "Movie_ID": "MOV1054", "Title": "Our Planet", "Category": "Documentary", "Type": "TV Show", "Rating": 5, "Watch_Count": 19, "Watch_Date": "2026-01-16", "Watch_Time_Minutes": 98, "Language": "Hindi", "Device": "TV", "Payment_Method": "Card", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0055", "Customer_Name": "Arjun Singh", "Region": "South", "Subscription_Plan": "Standard", "Movie_ID": "MOV1055", "Title": "Our Planet", "Category": "Documentary", "Type": "TV Show", "Rating": 2, "Watch_Count": 21, "Watch_Date": "2026-01-08", "Watch_Time_Minutes": 169, "Language": "Hindi", "Device": "Laptop", "Payment_Method": "PayPal", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0056", "Customer_Name": "Arjun Kulkarni", "Region": "North", "Subscription_Plan": "Basic", "Movie_ID": "MOV1056", "Title": "Extraction", "Category": "Action", "Type": "Movie", "Rating": 5, "Watch_Count": 19, "Watch_Date": "2026-06-28", "Watch_Time_Minutes": 142, "Language": "English", "Device": "Tablet", "Payment_Method": "Card", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0057", "Customer_Name": "Anjali Patil", "Region": "West", "Subscription_Plan": "Basic", "Movie_ID": "MOV1057", "Title": "Extraction", "Category": "Action", "Type": "Movie", "Rating": 3, "Watch_Count": 24, "Watch_Date": "2026-02-01", "Watch_Time_Minutes": 112, "Language": "Spanish", "Device": "Mobile", "Payment_Method": "Card", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0058", "Customer_Name": "Karan Shah", "Region": "East", "Subscription_Plan": "Basic", "Movie_ID": "MOV1058", "Title": "Extraction", "Category": "Action", "Type": "Movie", "Rating": 1, "Watch_Count": 25, "Watch_Date": "2026-03-29", "Watch_Time_Minutes": 148, "Language": "Japanese", "Device": "Laptop", "Payment_Method": "UPI", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0059", "Customer_Name": "Nikhil Singh", "Region": "West", "Subscription_Plan": "Standard", "Movie_ID": "MOV1059", "Title": "The Witcher", "Category": "Fantasy", "Type": "TV Show", "Rating": 4, "Watch_Count": 7, "Watch_Date": "2026-02-05", "Watch_Time_Minutes": 73, "Language": "Japanese", "Device": "TV", "Payment_Method": "Card", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0060", "Customer_Name": "Ritika Shah", "Region": "South", "Subscription_Plan": "Standard", "Movie_ID": "MOV1060", "Title": "Damsel", "Category": "Fantasy", "Type": "Movie", "Rating": 5, "Watch_Count": 21, "Watch_Date": "2026-04-02", "Watch_Time_Minutes": 102, "Language": "English", "Device": "TV", "Payment_Method": "Card", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0061", "Customer_Name": "Amit Das", "Region": "East", "Subscription_Plan": "Premium", "Movie_ID": "MOV1061", "Title": "The Witcher", "Category": "Fantasy", "Type": "TV Show", "Rating": 3, "Watch_Count": 6, "Watch_Date": "2026-03-03", "Watch_Time_Minutes": 114, "Language": "Korean", "Device": "Mobile", "Payment_Method": "PayPal", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0062", "Customer_Name": "Vikas Sharma", "Region": "West", "Subscription_Plan": "Basic", "Movie_ID": "MOV1062", "Title": "The Gray Man", "Category": "Action", "Type": "Movie", "Rating": 3, "Watch_Count": 24, "Watch_Date": "2026-02-08", "Watch_Time_Minutes": 106, "Language": "English", "Device": "Tablet", "Payment_Method": "PayPal", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0063", "Customer_Name": "Rahul Gupta", "Region": "North", "Subscription_Plan": "Basic", "Movie_ID": "MOV1063", "Title": "Squid Game", "Category": "Thriller", "Type": "TV Show", "Rating": 3, "Watch_Count": 10, "Watch_Date": "2026-03-02", "Watch_Time_Minutes": 43, "Language": "Hindi", "Device": "Laptop", "Payment_Method": "PayPal", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0064", "Customer_Name": "Sneha Shah", "Region": "South", "Subscription_Plan": "Basic", "Movie_ID": "MOV1064", "Title": "The Gray Man", "Category": "Action", "Type": "Movie", "Rating": 1, "Watch_Count": 11, "Watch_Date": "2026-05-17", "Watch_Time_Minutes": 85, "Language": "Korean", "Device": "TV", "Payment_Method": "UPI", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0065", "Customer_Name": "Karan Sharma", "Region": "South", "Subscription_Plan": "Standard", "Movie_ID": "MOV1065", "Title": "Stranger Things", "Category": "Sci-Fi", "Type": "TV Show", "Rating": 4, "Watch_Count": 19, "Watch_Date": "2026-06-26", "Watch_Time_Minutes": 101, "Language": "Hindi", "Device": "Mobile", "Payment_Method": "UPI", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0066", "Customer_Name": "Amit Jadhav", "Region": "South", "Subscription_Plan": "Premium", "Movie_ID": "MOV1066", "Title": "Damsel", "Category": "Fantasy", "Type": "Movie", "Rating": 3, "Watch_Count": 1, "Watch_Date": "2026-02-04", "Watch_Time_Minutes": 64, "Language": "Spanish", "Device": "Mobile", "Payment_Method": "Card", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0067", "Customer_Name": "Ritika Shah", "Region": "South", "Subscription_Plan": "Basic", "Movie_ID": "MOV1067", "Title": "Money Heist", "Category": "Crime", "Type": "TV Show", "Rating": 4, "Watch_Count": 8, "Watch_Date": "2026-05-05", "Watch_Time_Minutes": 179, "Language": "Hindi", "Device": "Tablet", "Payment_Method": "Net Banking", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0068", "Customer_Name": "Ritika Shah", "Region": "North", "Subscription_Plan": "Basic", "Movie_ID": "MOV1068", "Title": "Squid Game", "Category": "Thriller", "Type": "TV Show", "Rating": 3, "Watch_Count": 11, "Watch_Date": "2026-05-03", "Watch_Time_Minutes": 125, "Language": "Japanese", "Device": "Tablet", "Payment_Method": "UPI", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0069", "Customer_Name": "Rohan Singh", "Region": "West", "Subscription_Plan": "Standard", "Movie_ID": "MOV1069", "Title": "The Gray Man", "Category": "Action", "Type": "Movie", "Rating": 2, "Watch_Count": 6, "Watch_Date": "2026-04-21", "Watch_Time_Minutes": 74, "Language": "English", "Device": "Tablet", "Payment_Method": "PayPal", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0070", "Customer_Name": "Pooja Gupta", "Region": "East", "Subscription_Plan": "Premium", "Movie_ID": "MOV1070", "Title": "Damsel", "Category": "Fantasy", "Type": "Movie", "Rating": 1, "Watch_Count": 21, "Watch_Date": "2026-05-05", "Watch_Time_Minutes": 167, "Language": "English", "Device": "TV", "Payment_Method": "UPI", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0071", "Customer_Name": "Pooja Jadhav", "Region": "East", "Subscription_Plan": "Standard", "Movie_ID": "MOV1071", "Title": "Our Planet", "Category": "Documentary", "Type": "TV Show", "Rating": 5, "Watch_Count": 12, "Watch_Date": "2026-03-01", "Watch_Time_Minutes": 112, "Language": "English", "Device": "TV", "Payment_Method": "Card", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0072", "Customer_Name": "Meera Sharma", "Region": "North", "Subscription_Plan": "Basic", "Movie_ID": "MOV1072", "Title": "Leo", "Category": "Animation", "Type": "Movie", "Rating": 3, "Watch_Count": 1, "Watch_Date": "2026-02-17", "Watch_Time_Minutes": 140, "Language": "Japanese", "Device": "Laptop", "Payment_Method": "Net Banking", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0073", "Customer_Name": "Vikas Joshi", "Region": "North", "Subscription_Plan": "Standard", "Movie_ID": "MOV1073", "Title": "Extraction", "Category": "Action", "Type": "Movie", "Rating": 1, "Watch_Count": 23, "Watch_Date": "2026-04-30", "Watch_Time_Minutes": 171, "Language": "English", "Device": "Laptop", "Payment_Method": "Card", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0074", "Customer_Name": "Arjun Patil", "Region": "North", "Subscription_Plan": "Premium", "Movie_ID": "MOV1074", "Title": "Squid Game", "Category": "Thriller", "Type": "TV Show", "Rating": 5, "Watch_Count": 25, "Watch_Date": "2026-03-17", "Watch_Time_Minutes": 148, "Language": "Japanese", "Device": "Tablet", "Payment_Method": "Net Banking", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0075", "Customer_Name": "Sneha Das", "Region": "West", "Subscription_Plan": "Premium", "Movie_ID": "MOV1075", "Title": "Wednesday", "Category": "Mystery", "Type": "TV Show", "Rating": 1, "Watch_Count": 4, "Watch_Date": "2026-03-17", "Watch_Time_Minutes": 113, "Language": "Spanish", "Device": "Tablet", "Payment_Method": "Net Banking", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0076", "Customer_Name": "Pooja Kulkarni", "Region": "West", "Subscription_Plan": "Premium", "Movie_ID": "MOV1076", "Title": "The Witcher", "Category": "Fantasy", "Type": "TV Show", "Rating": 4, "Watch_Count": 3, "Watch_Date": "2026-05-17", "Watch_Time_Minutes": 33, "Language": "Korean", "Device": "Mobile", "Payment_Method": "Card", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0077", "Customer_Name": "Rohan Shah", "Region": "North", "Subscription_Plan": "Basic", "Movie_ID": "MOV1077", "Title": "The Gray Man", "Category": "Action", "Type": "Movie", "Rating": 2, "Watch_Count": 19, "Watch_Date": "2026-02-04", "Watch_Time_Minutes": 47, "Language": "Hindi", "Device": "Laptop", "Payment_Method": "Card", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0078", "Customer_Name": "Neha Sharma", "Region": "South", "Subscription_Plan": "Standard", "Movie_ID": "MOV1078", "Title": "Damsel", "Category": "Fantasy", "Type": "Movie", "Rating": 5, "Watch_Count": 4, "Watch_Date": "2026-05-22", "Watch_Time_Minutes": 66, "Language": "Korean", "Device": "TV", "Payment_Method": "UPI", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0079", "Customer_Name": "Rohan Das", "Region": "West", "Subscription_Plan": "Standard", "Movie_ID": "MOV1079", "Title": "Stranger Things", "Category": "Sci-Fi", "Type": "TV Show", "Rating": 5, "Watch_Count": 7, "Watch_Date": "2026-02-04", "Watch_Time_Minutes": 50, "Language": "English", "Device": "TV", "Payment_Method": "Card", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0080", "Customer_Name": "Rohan Das", "Region": "West", "Subscription_Plan": "Basic", "Movie_ID": "MOV1080", "Title": "The Witcher", "Category": "Fantasy", "Type": "TV Show", "Rating": 3, "Watch_Count": 23, "Watch_Date": "2026-03-02", "Watch_Time_Minutes": 118, "Language": "English", "Device": "TV", "Payment_Method": "UPI", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0081", "Customer_Name": "Amit Singh", "Region": "West", "Subscription_Plan": "Premium", "Movie_ID": "MOV1081", "Title": "Money Heist", "Category": "Crime", "Type": "TV Show", "Rating": 3, "Watch_Count": 23, "Watch_Date": "2026-05-06", "Watch_Time_Minutes": 57, "Language": "Spanish", "Device": "Laptop", "Payment_Method": "PayPal", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0082", "Customer_Name": "Neha Patil", "Region": "South", "Subscription_Plan": "Standard", "Movie_ID": "MOV1082", "Title": "Squid Game", "Category": "Thriller", "Type": "TV Show", "Rating": 4, "Watch_Count": 14, "Watch_Date": "2026-04-27", "Watch_Time_Minutes": 94, "Language": "Hindi", "Device": "TV", "Payment_Method": "PayPal", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0083", "Customer_Name": "Neha Singh", "Region": "North", "Subscription_Plan": "Basic", "Movie_ID": "MOV1083", "Title": "Wednesday", "Category": "Mystery", "Type": "TV Show", "Rating": 4, "Watch_Count": 21, "Watch_Date": "2026-03-18", "Watch_Time_Minutes": 34, "Language": "Japanese", "Device": "Laptop", "Payment_Method": "PayPal", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0084", "Customer_Name": "Arjun Joshi", "Region": "South", "Subscription_Plan": "Standard", "Movie_ID": "MOV1084", "Title": "Damsel", "Category": "Fantasy", "Type": "Movie", "Rating": 4, "Watch_Count": 20, "Watch_Date": "2026-06-27", "Watch_Time_Minutes": 126, "Language": "Hindi", "Device": "Mobile", "Payment_Method": "Card", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0085", "Customer_Name": "Vikas Gupta", "Region": "South", "Subscription_Plan": "Basic", "Movie_ID": "MOV1085", "Title": "Money Heist", "Category": "Crime", "Type": "TV Show", "Rating": 3, "Watch_Count": 20, "Watch_Date": "2026-01-02", "Watch_Time_Minutes": 58, "Language": "Japanese", "Device": "Tablet", "Payment_Method": "PayPal", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0086", "Customer_Name": "Vikas Jadhav", "Region": "West", "Subscription_Plan": "Premium", "Movie_ID": "MOV1086", "Title": "Leo", "Category": "Animation", "Type": "Movie", "Rating": 2, "Watch_Count": 4, "Watch_Date": "2026-04-24", "Watch_Time_Minutes": 57, "Language": "Korean", "Device": "Mobile", "Payment_Method": "Net Banking", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0087", "Customer_Name": "Vikas Singh", "Region": "South", "Subscription_Plan": "Basic", "Movie_ID": "MOV1087", "Title": "The Witcher", "Category": "Fantasy", "Type": "TV Show", "Rating": 3, "Watch_Count": 24, "Watch_Date": "2026-06-04", "Watch_Time_Minutes": 134, "Language": "Spanish", "Device": "TV", "Payment_Method": "UPI", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0088", "Customer_Name": "Pooja Das", "Region": "West", "Subscription_Plan": "Standard", "Movie_ID": "MOV1088", "Title": "Damsel", "Category": "Fantasy", "Type": "Movie", "Rating": 4, "Watch_Count": 18, "Watch_Date": "2026-02-19", "Watch_Time_Minutes": 96, "Language": "Spanish", "Device": "Mobile", "Payment_Method": "UPI", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0089", "Customer_Name": "Anjali Singh", "Region": "East", "Subscription_Plan": "Basic", "Movie_ID": "MOV1089", "Title": "Wednesday", "Category": "Mystery", "Type": "TV Show", "Rating": 2, "Watch_Count": 5, "Watch_Date": "2026-04-09", "Watch_Time_Minutes": 92, "Language": "Korean", "Device": "TV", "Payment_Method": "Net Banking", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0090", "Customer_Name": "Rahul Sharma", "Region": "South", "Subscription_Plan": "Premium", "Movie_ID": "MOV1090", "Title": "The Witcher", "Category": "Fantasy", "Type": "TV Show", "Rating": 4, "Watch_Count": 10, "Watch_Date": "2026-05-23", "Watch_Time_Minutes": 70, "Language": "Japanese", "Device": "Mobile", "Payment_Method": "Card", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0091", "Customer_Name": "Ritika Shah", "Region": "West", "Subscription_Plan": "Premium", "Movie_ID": "MOV1091", "Title": "Money Heist", "Category": "Crime", "Type": "TV Show", "Rating": 2, "Watch_Count": 1, "Watch_Date": "2026-05-27", "Watch_Time_Minutes": 173, "Language": "Spanish", "Device": "Laptop", "Payment_Method": "Card", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0092", "Customer_Name": "Amit Jadhav", "Region": "West", "Subscription_Plan": "Standard", "Movie_ID": "MOV1092", "Title": "Wednesday", "Category": "Mystery", "Type": "TV Show", "Rating": 3, "Watch_Count": 9, "Watch_Date": "2026-03-08", "Watch_Time_Minutes": 136, "Language": "Spanish", "Device": "TV", "Payment_Method": "UPI", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0093", "Customer_Name": "Pooja Jadhav", "Region": "North", "Subscription_Plan": "Standard", "Movie_ID": "MOV1093", "Title": "The Gray Man", "Category": "Action", "Type": "Movie", "Rating": 3, "Watch_Count": 18, "Watch_Date": "2026-04-12", "Watch_Time_Minutes": 83, "Language": "Hindi", "Device": "Tablet", "Payment_Method": "PayPal", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0094", "Customer_Name": "Pooja Joshi", "Region": "East", "Subscription_Plan": "Basic", "Movie_ID": "MOV1094", "Title": "Money Heist", "Category": "Crime", "Type": "TV Show", "Rating": 3, "Watch_Count": 21, "Watch_Date": "2026-06-16", "Watch_Time_Minutes": 80, "Language": "English", "Device": "Mobile", "Payment_Method": "UPI", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0095", "Customer_Name": "Meera Singh", "Region": "North", "Subscription_Plan": "Standard", "Movie_ID": "MOV1095", "Title": "The Witcher", "Category": "Fantasy", "Type": "TV Show", "Rating": 1, "Watch_Count": 14, "Watch_Date": "2026-03-15", "Watch_Time_Minutes": 169, "Language": "English", "Device": "Tablet", "Payment_Method": "Card", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0096", "Customer_Name": "Arjun Kulkarni", "Region": "West", "Subscription_Plan": "Standard", "Movie_ID": "MOV1096", "Title": "Damsel", "Category": "Fantasy", "Type": "Movie", "Rating": 3, "Watch_Count": 25, "Watch_Date": "2026-01-13", "Watch_Time_Minutes": 66, "Language": "Korean", "Device": "Laptop", "Payment_Method": "PayPal", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0097", "Customer_Name": "Sahil Verma", "Region": "South", "Subscription_Plan": "Basic", "Movie_ID": "MOV1097", "Title": "Stranger Things", "Category": "Sci-Fi", "Type": "TV Show", "Rating": 1, "Watch_Count": 17, "Watch_Date": "2026-06-13", "Watch_Time_Minutes": 104, "Language": "Korean", "Device": "Tablet", "Payment_Method": "Net Banking", "Monthly_Revenue": 199}, {"Customer_ID": "CUST0098", "Customer_Name": "Neha Das", "Region": "North", "Subscription_Plan": "Premium", "Movie_ID": "MOV1098", "Title": "The Witcher", "Category": "Fantasy", "Type": "TV Show", "Rating": 3, "Watch_Count": 20, "Watch_Date": "2026-01-02", "Watch_Time_Minutes": 132, "Language": "Hindi", "Device": "Tablet", "Payment_Method": "Card", "Monthly_Revenue": 649}, {"Customer_ID": "CUST0099", "Customer_Name": "Karan Verma", "Region": "North", "Subscription_Plan": "Standard", "Movie_ID": "MOV1099", "Title": "Money Heist", "Category": "Crime", "Type": "TV Show", "Rating": 3, "Watch_Count": 6, "Watch_Date": "2026-05-08", "Watch_Time_Minutes": 169, "Language": "Hindi", "Device": "Mobile", "Payment_Method": "Net Banking", "Monthly_Revenue": 499}, {"Customer_ID": "CUST0100", "Customer_Name": "Sneha Sharma", "Region": "West", "Subscription_Plan": "Basic", "Movie_ID": "MOV1100", "Title": "The Witcher", "Category": "Fantasy", "Type": "TV Show", "Rating": 4, "Watch_Count": 17, "Watch_Date": "2026-05-04", "Watch_Time_Minutes": 59, "Language": "Korean", "Device": "TV", "Payment_Method": "Net Banking", "Monthly_Revenue": 199}];
+        const palette = ["#e50914", "#f05d5e", "#ff9c74", "#f5c36a", "#72c7b5", "#8ea5ff", "#c18aff", "#d4d4d8"];
+        
+        // State
+        let filteredData = [...rawData];
+        let currentPage = 1;
+        const rowsPerPage = 10;
+        let searchQuery = "";
+        
+        // Init Filters
+        function initFilters() {
+            const types = [...new Set(rawData.map(d => d.Type))].sort();
+            const regions = [...new Set(rawData.map(d => d.Region))].sort();
+            const ratings = [...new Set(rawData.map(d => d.Rating))].sort((a,b)=>a-b);
+            const categories = [...new Set(rawData.map(d => d.Category))].sort();
+            
+            const popFilter = (id, vals) => {
+                const sel = document.getElementById(id);
+                vals.forEach(v => {
+                    const opt = document.createElement('option');
+                    opt.value = v; opt.textContent = v;
+                    sel.appendChild(opt);
+                });
+                sel.addEventListener('change', applyFilters);
+            };
+            
+            popFilter('filter-type', types);
+            popFilter('filter-region', regions);
+            popFilter('filter-rating', ratings);
+            popFilter('filter-category', categories);
+            
+            document.getElementById('table-search').addEventListener('input', (e) => {
+                searchQuery = e.target.value.toLowerCase();
+                currentPage = 1;
+                renderTable();
+            });
+            
+            document.getElementById('btn-prev').addEventListener('click', () => {
+                if(currentPage > 1) { currentPage--; renderTable(); }
+            });
+            document.getElementById('btn-next').addEventListener('click', () => {
+                const max = Math.ceil(tableData().length / rowsPerPage);
+                if(currentPage < max) { currentPage++; renderTable(); }
+            });
+        }
+        
+        function applyFilters() {
+            const t = document.getElementById('filter-type').value;
+            const r = document.getElementById('filter-region').value;
+            const rt = document.getElementById('filter-rating').value;
+            const c = document.getElementById('filter-category').value;
+            
+            filteredData = rawData.filter(d => {
+                return (t === 'All' || d.Type === t) &&
+                       (r === 'All' || d.Region === r) &&
+                       (rt === 'All' || d.Rating.toString() === rt) &&
+                       (c === 'All' || d.Category === c);
+            });
+            
+            currentPage = 1;
+            updateDashboard();
+        }
+        
+        // GroupBy Helper
+        function groupBy(data, key) {
+            return data.reduce((acc, curr) => {
+                acc[curr[key]] = (acc[curr[key]] || 0) + 1;
+                return acc;
+            }, {});
+        }
+        function sumBy(data, groupKey, sumKey) {
+            return data.reduce((acc, curr) => {
+                acc[curr[groupKey]] = (acc[curr[groupKey]] || 0) + curr[sumKey];
+                return acc;
+            }, {});
+        }
+        function avgBy(data, groupKey, valKey) {
+            const sums = data.reduce((acc, curr) => {
+                if(!acc[curr[groupKey]]) acc[curr[groupKey]] = { sum: 0, count: 0 };
+                acc[curr[groupKey]].sum += curr[valKey];
+                acc[curr[groupKey]].count += 1;
+                return acc;
+            }, {});
+            const res = {};
+            for(let k in sums) res[k] = sums[k].sum / sums[k].count;
+            return res;
+        }
+
+        // Layout config for Plotly
+        const layoutBase = {
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            font: { color: '#b3b3b3', family: 'DM Sans' },
+            margin: { t: 20, r: 20, l: 40, b: 40 },
+            xaxis: { gridcolor: '#333' },
+            yaxis: { gridcolor: '#333' },
+            showlegend: false
+        };
+        
+        function drawCharts() {
+            const d = filteredData;
+            
+            // 1. Movie vs TV (Pie)
+            const typeCounts = groupBy(d, 'Type');
+            Plotly.newPlot('chart1', [{
+                values: Object.values(typeCounts),
+                labels: Object.keys(typeCounts),
+                type: 'pie',
+                hole: 0.5,
+                marker: { colors: [palette[0], palette[7]] }
+            }], { ...layoutBase, showlegend: true });
+            
+            // 2. Viewing by Month
+            // Extract month-year
+            const monthCounts = {};
+            d.forEach(row => {
+                const m = row.Watch_Date.substring(0,7);
+                monthCounts[m] = (monthCounts[m] || 0) + 1;
+            });
+            const sortedMonths = Object.keys(monthCounts).sort();
+            Plotly.newPlot('chart2', [{
+                x: sortedMonths,
+                y: sortedMonths.map(m => monthCounts[m]),
+                type: 'scatter',
+                fill: 'tozeroy',
+                line: { color: palette[0] }
+            }], layoutBase);
+            
+            // 3. Top Regions
+            const regCounts = groupBy(d, 'Region');
+            Plotly.newPlot('chart3', [{
+                x: Object.values(regCounts),
+                y: Object.keys(regCounts),
+                type: 'bar',
+                orientation: 'h',
+                marker: { color: palette[1] }
+            }], layoutBase);
+            
+            // 4. Rating Distribution
+            const ratingCounts = groupBy(d, 'Rating');
+            Plotly.newPlot('chart4', [{
+                x: Object.keys(ratingCounts),
+                y: Object.values(ratingCounts),
+                type: 'bar',
+                marker: { color: palette[2] }
+            }], layoutBase);
+            
+            // 5. Popular Categories
+            const catCounts = groupBy(d, 'Category');
+            // Sort categories
+            const sortedCats = Object.keys(catCounts).sort((a,b)=>catCounts[a]-catCounts[b]);
+            Plotly.newPlot('chart5', [{
+                x: sortedCats.map(c => catCounts[c]),
+                y: sortedCats,
+                type: 'bar',
+                orientation: 'h',
+                marker: { color: palette[4] }
+            }], layoutBase);
+            
+            // 6. Stacked Bar Activity
+            const months = [...new Set(d.map(r => r.Watch_Date.substring(0,7)))].sort();
+            const movData = months.map(m => d.filter(r => r.Watch_Date.substring(0,7) === m && r.Type === 'Movie').length);
+            const tvData = months.map(m => d.filter(r => r.Watch_Date.substring(0,7) === m && r.Type === 'TV Show').length);
+            Plotly.newPlot('chart6', [
+                { x: months, y: movData, name: 'Movie', type: 'bar', marker: {color: palette[0]} },
+                { x: months, y: tvData, name: 'TV Show', type: 'bar', marker: {color: palette[7]} }
+            ], { ...layoutBase, barmode: 'stack', showlegend: true });
+            
+            // 7. Revenue by Region
+            const revReg = sumBy(d, 'Region', 'Monthly_Revenue');
+            Plotly.newPlot('chart7', [{
+                x: Object.values(revReg),
+                y: Object.keys(revReg),
+                type: 'bar',
+                orientation: 'h',
+                marker: { color: palette[5] }
+            }], layoutBase);
+            
+            // 8. Avg Rating by Plan
+            const avgRatPlan = avgBy(d, 'Subscription_Plan', 'Rating');
+            Plotly.newPlot('chart8', [{
+                x: Object.keys(avgRatPlan),
+                y: Object.values(avgRatPlan),
+                type: 'bar',
+                marker: { color: palette[6] }
+            }], layoutBase);
+        }
+        
+        function updateInsights() {
+            const d = filteredData;
+            if(d.length === 0) return;
+            
+            const most = (obj) => Object.keys(obj).reduce((a, b) => obj[a] > obj[b] ? a : b);
+            
+            document.getElementById('i-format').textContent = most(groupBy(d, 'Type'));
+            
+            const monthCounts = groupBy(d.map(x => ({m: x.Watch_Date.substring(0,7)})), 'm');
+            document.getElementById('i-month').textContent = most(monthCounts);
+            
+            document.getElementById('i-region').textContent = most(groupBy(d, 'Region'));
+            document.getElementById('i-rating').textContent = most(groupBy(d, 'Rating'));
+            document.getElementById('i-category').textContent = most(groupBy(d, 'Category'));
+        }
+        
+        function tableData() {
+            if(!searchQuery) return filteredData;
+            return filteredData.filter(r => 
+                r.Title.toLowerCase().includes(searchQuery) || 
+                r.Customer_Name.toLowerCase().includes(searchQuery)
+            );
+        }
+        
+        function renderTable() {
+            const data = tableData();
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const pageData = data.slice(start, end);
+            
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            
+            pageData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.Customer_Name}</td>
+                    <td>${row.Title}</td>
+                    <td>${row.Type}</td>
+                    <td>${row.Category}</td>
+                    <td>${row.Region}</td>
+                    <td>${row.Watch_Date}</td>
+                    <td>$${row.Monthly_Revenue}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            const maxPage = Math.ceil(data.length / rowsPerPage) || 1;
+            document.getElementById('page-info').textContent = `Page ${currentPage} of ${maxPage}`;
+        }
+        
+        function updateDashboard() {
+            const d = filteredData;
+            
+            // Hero Stats
+            const totalRec = d.length;
+            const distTitles = new Set(d.map(x=>x.Title)).size;
+            document.getElementById('hero-stats').textContent = `${totalRec} Records | ${distTitles} Distinct Titles`;
+            
+            // Metrics
+            document.getElementById('m-titles').textContent = distTitles;
+            document.getElementById('m-movies').textContent = d.filter(x=>x.Type==='Movie').length;
+            document.getElementById('m-shows').textContent = d.filter(x=>x.Type==='TV Show').length;
+            document.getElementById('m-regions').textContent = new Set(d.map(x=>x.Region)).size;
+            document.getElementById('m-customers').textContent = new Set(d.map(x=>x.Customer_ID)).size;
+            document.getElementById('m-categories').textContent = new Set(d.map(x=>x.Category)).size;
+            
+            drawCharts();
+            updateInsights();
+            renderTable();
+        }
+        
+        // Init
+        initFilters();
+        updateDashboard();
+        
+        // Responsive chart resize
+        window.addEventListener('resize', () => {
+            const ids = ['chart1','chart2','chart3','chart4','chart5','chart6','chart7','chart8'];
+            ids.forEach(id => Plotly.Plots.resize(id));
+        });
+    </script>
+</body>
+</html>
